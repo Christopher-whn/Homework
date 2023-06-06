@@ -1,2 +1,2 @@
 # Homework
-SEU intelligent civil engineering  homework
+SEU intelligent civil engineering AI homework
