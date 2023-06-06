@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>数据可视化</title>
+
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/three.js"></script>
+    <script src="js/WebGL.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/stats.min.js"></script>
+    <script src="js/GLTFLoader.js"></script>
+    <script src="js/initThree.js"></script>
+    <script src="js/jquery.js"></script>
+    <script>
+        $(function () {
+            $('.myscroll').myScroll({
+                speed: 60, //数值越大，速度越慢
+                rowHeight: 38 //li的高度
+            });
+        });
+
+        $(document).ready(function () {
+            var whei = $(window).width()
+            $("html").css({ fontSize: whei / 22 });
+            $(window).resize(function () {
+                var whei = $(window).width();
+                $("html").css({ fontSize: whei / 22 })
+            });
+        });
+    </script>
+    <style>
+        .yqlist li{float: left; width: 50%; padding:10px 0; text-align: center;}
+        .yq{width:100px; height: 100px; margin: 0 auto  5px auto;  position: relative; display: flex; justify-content: center;align-items: center; font-size: 30px;font-family:electronicFont;color: #fff32b;}
+        .yqlist li span{opacity: .6; font-size: 14px;}
+
+        .yq:before{position: absolute; width: 100%; height: 100%; content: ""; background: url(images/img1.png) center center; border-radius: 100px; background-size: 100% 100%; opacity:.3;
+	    left:0; top: 0; animation: myfirst2 15s infinite linear;}
+
+        .yq:after{position: absolute; width: 86%; background: url(images/img2.png) center center; border-radius: 100px; background-size: 100% 100%;  opacity:.3;
+	    height: 86%; content: "";   left:7%; top: 7%; animation: myfirst 15s infinite linear;}
+        .clearfix:after, .clearfix:before {
+	    display: table;
+	    content: " "
+        }
+        .clearfix:after {
+	    clear: both
+        }
+    </style>
+</head>
+<body>
+
+<div class="main">
+    <div class="header">
+        <div class="header-left fl" id="time"></div>
+        <div class="header-center fl">
+            <div class="header-title">
+                室内数据可视化大屏中心
+            </div>
+            <div class="header-img"></div>
+        </div>
+        <div class="header-right fl"></div>
+        <div class="header-bottom fl"></div>
+
+    </div>
+
+    <div class="center">
+        <div class="center-left fl">
+            <div class="left-top">
+                <!--<h1 id="ceshi">数据可视化</h1>-->
+                <div class="title">基本信息</div>
+                <div class="top-list">
+                    <p>某住宅楼</p>
+                    <ul>
+                        <li>建筑面积：4250 平方米</li>
+                        <li>住户总数：1254</li>
+                        <li>房间数：2045</li>
+                        <li>传感器数：468</li>
+                    </ul>
+                </div>
+
+            </div>
+            <div class="left-cen">
+                <div class="title">传感器1实时数据</div>
+                    <div class="boxnav" style="height: 330px;">
+        <div class="yqlist">
+                    <ul class="clearfix">
+                                      <li>
+                        <div class="yq" id="temperature">26</div>
+                        <script>
+
+                            setInterval(function () {
+                                var gettemp = [];
+                                fetch('https://stevenhou.xyz/student09/api/dynamic-datas')
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        data.map(d => gettemp.push(d["temperature"]));
+                                        //console.log(gettemp.slice(-1));
+                                        //return gettemp.slice(-1);
+                                        let now_temp = document.getElementById("temperature");
+                                        now_temp.innerHTML = gettemp.slice(-1);
+                                    })
+                            },10000);
+
+                        </script>
+
+                        <span><p style="color: white;">温度</p></span></li>
+
+                                      <li>
+                        <div class="yq" id="humidity">41</div>
+                        <script>
+
+                            setInterval(function () {
+                                var gethumi = [];
+                                fetch('https://stevenhou.xyz/student09/api/dynamic-datas')
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        data.map(d => gethumi.push(d["humidity"]));
+                                        
+                                        let now_humi = document.getElementById("humidity");
+                                        now_humi.innerHTML = gethumi.slice(-1);
+                                    })
+                            },10000);
+
+                        </script>
+                        <span><p style="color: white;">湿度</p></span></li>
+
+                                    </ul>
+                  </div>
+                    </div>
+
+            </div>
+            <div class="left-bottom">
+                <div class="title">数据可视化测试</div>
+                <div class="bottom-b">
+                </div>
+
+            </div>
+        </div>
+        <div class="center-cen fl">
+            <div class="cen-top">
+                <div class="top-title">
+                    <ul>
+                        <li>
+                            <p>三维可视化</p>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="top-bottom">
+                    <div id="three"></div>
+                </div>
+            </div>
+            <div class="cen-bottom">
+                <div class="title">数据可视化测试</div>
+                <div class="bottom-b">
+                </div>
+
+            </div>
+        </div>
+        <div class="center-right fr">
+            <div class="right-top">
+                <div class="title">数据可视化测试</div>
+
+                <div class="echart wenzi">
+                    <div class="gun">
+                        <span>序号</span>
+                        <span>楼层</span>
+                        <span>环境状态</span>
+                    </div>
+                    <div id="FontScroll" class="myscroll">
+                        <ul>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>1</b>
+                                    </span>
+                                    <span>1</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>2</b>
+                                    </span>
+                                    <span>1</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>3</b>
+                                    </span>
+                                    <span>1</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>4</b>
+                                    </span>
+                                    <span>1</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>5</b>
+                                    </span>
+                                    <span>2</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>6</b>
+                                    </span>
+                                    <span>2</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>7</b>
+                                    </span>
+                                    <span>2</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>8</b>
+                                    </span>
+                                    <span>3</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>9</b>
+                                    </span>
+                                    <span>3</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>10</b>
+                                    </span>
+                                    <span>3</span>
+                                    <span>正常</span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>11</b>
+                                    </span>
+                                    <span>3</span>
+                                    <span>正常</span>
+
+                                </div>
+                            </li>
+                            <li>
+                                <div class="fontInner clearfix">
+                                    <span>
+                                        <b>12</b>
+                                    </span>
+                                    <span>4</span>
+                                    <span>正常</span>
+
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+            <div class="right-cen">
+                <div class="title">烟雾实时数据</div>
+                <div id="main1" style="width: 330px;height:200px;"></div>
+                <script src="js/echarts.min.js"></script>
+                <script type="text/javascript">
+                var myChart = echarts.init(document.getElementById('main1'));
+
+             option1 = {
+
+            tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow'}
+            },
+            grid: {
+            left: '0%',
+		    top:'10px',
+            right: '0%',
+            bottom: '0px',
+            containLabel: true
+            },
+            xAxis: [{
+            type: 'category',
+      		data: ['1', '2', '3', '4', '5','6', '7', '8', '9', '10','11', '12'],
+            axisLine: {
+            show: true,
+            lineStyle: {
+                color: "rgba(255,255,255,.1)",
+                width: 1,
+                type: "solid"
+            },
+            },
+		
+            axisTick: {
+            show: false,
+            },
+		    axisLabel:  {
+                interval: 0,
+               // rotate:50,
+                show: true,
+                splitNumber: 15,
+                textStyle: {
+ 					color: "rgba(255,255,255,.6)",
+                    fontSize: '12',
+                },
+            },
+            }],
+            yAxis: [{
+            type: 'value',
+            axisLabel: {
+           //formatter: '{value} %'
+			show:true,
+			textStyle: {
+ 					color: "rgba(255,255,255,.6)",
+                    fontSize: '12',
+                },
+            },
+            axisTick: {
+            show: false,
+            },
+            axisLine: {
+            show: true,
+            lineStyle: {
+                color: "rgba(255,255,255,.1	)",
+                width: 1,
+                type: "solid"
+            },
+            },
+            splitLine: {
+            lineStyle: {
+               color: "rgba(255,255,255,.1)",
+            }
+            }
+            }],
+
+            };
+ 
+            myChart.setOption(option1);
+            window.addEventListener("resize",function(){
+            myChart.resize();
+            });
+
+
+        smokes = [],
+        fetch('https://stevenhou.xyz/student09/api/dynamic-datas')
+            .then(response => response.json())
+            .then(data => {
+                data.map(d => smokes.push(d["smoke"]));
+                console.log(smokes);
+                myChart.setOption({
+                series: [
+                    {   type: 'line',
+                        data: smokes.slice(-13,-1) ,
+                        itemStyle: {
+                            normal: {
+                                color:'#37a3ff',
+                                opacity: 1,
+                            
+                                BorderRadius: 3,
+                            }
+                        }
+                    }]
+                });
+            })
+        </script>
+            </div>
+            <div class="right-bottom">
+                <div class="title">数据可视化测试</div>
+                
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+
+<script src="js/jquery.min.js"></script>
+<script src="js/echarts.min.js"></script>
+<script src="js/wodry.min.js"></script>
+<script src="js/fontscroll.js"></script>
+<script src="js/echarts.js"></script>
+
+<script>
+    /*$('#ceshi').wodry({
+
+        animation: 'rotateX',
+
+        delay: 1000,
+
+        animationDuration: 800
+
+    });*/
+    /*window.onload = function () {
+        setInterval(function () {
+            var hs=document.getElementById("ceshi");
+            var hstyle=hs.style.transform;
+            if(hstyle=='rotateX(-360deg)'){
+                //console.log(1)
+                hs.style.transform='rotateX(0deg)';
+                hs.style.transform='transform 500ms cubic-bezier(0.55, 0.18, 0.92, 0.46) 0s;'
+            }else {
+                hs.style.transform='rotateX(-360deg)';
+                hs.style.transition="all 2s";
+            }
+        }, 5000);
+    };*/
+
+    //顶部时间
+    function getTime(){
+        var myDate = new Date();
+        var myYear = myDate.getFullYear(); //获取完整的年份(4位,1970-????)
+        var myMonth = myDate.getMonth()+1; //获取当前月份(0-11,0代表1月)
+        var myToday = myDate.getDate(); //获取当前日(1-31)
+        var myDay = myDate.getDay(); //获取当前星期X(0-6,0代表星期天)
+        var myHour = myDate.getHours(); //获取当前小时数(0-23)
+        var myMinute = myDate.getMinutes(); //获取当前分钟数(0-59)
+        var mySecond = myDate.getSeconds(); //获取当前秒数(0-59)
+        var week = ['星期日','星期一','星期二','星期三','星期四','星期五','星期六'];
+        var nowTime;
+
+        nowTime = myYear+'-'+fillZero(myMonth)+'-'+fillZero(myToday)+'&nbsp;&nbsp;'+fillZero(myHour)+':'+fillZero(myMinute)+':'+fillZero(mySecond)+'&nbsp;&nbsp;'+week[myDay]+'&nbsp;&nbsp;';
+        //console.log(nowTime);
+        $('#time').html(nowTime);
+    };
+    function fillZero(str){
+        var realNum;
+        if(str<10){
+            realNum	= '0'+str;
+        }else{
+            realNum	= str;
+        }
+        return realNum;
+    }
+    setInterval(getTime,1000);
+
+</script>
+<script>
+    init(window.innerWidth*0.45 , window.innerHeight*0.47, true, true);
+    
+    // 定义材质
+    var geometry = new THREE.PlaneBufferGeometry(500, 500);
+    var material = new THREE.MeshPhongMaterial({
+      color: 0x999999,
+      depthWrite: false,
+    });
+    // 添加地面
+    var ground = new THREE.Mesh(geometry, material);
+    ground.position.set(0, 0, 0);
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+    // 地面网格
+    var grid = new THREE.GridHelper(500, 100, 0x000000, 0x000000);
+    //   grid.position.y = -5;
+    grid.material.opacity = 0.2;
+    grid.material.transparent = true;
+    scene.add(grid);
+
+    // 加载模型
+    var loader = new THREE.GLTFLoader();
+    var mixer, clock;
+    clock = new THREE.Clock();
+    loader.load("scene.gltf", function (gltf) {
+      console.log(gltf);
+      scene.add(gltf.scene);
+      mixer = new THREE.AnimationMixer(gltf.scene);
+      mixer.clipAction(gltf.animations[0]).setDuration(0.1).play();
+    });
+    function render() {
+      // 循环动画
+      requestAnimationFrame(render);
+      renderer.render(scene, camera);
+      renderer.setSize(window.innerWidth*0.45 , window.innerHeight*0.46 ); 
+      if (mixer) mixer.update(clock.getDelta());
+      stats.update();
+    }
+    render();
+</script>
+</body>
+</html>
